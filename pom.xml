@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.rekri</groupId>
-    <artifactId>BlacjackEngine</artifactId>
+    <artifactId>BlackJackEngine</artifactId>
     <version>2.0.0</version>
 
     <properties>
@@ -18,7 +18,7 @@
         <repository>
             <id>github</id>
             <name>GitHub ReKri76 Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/ReKri76/BlacjackEngine</url>
+            <url>https://maven.pkg.github.com/ReKri76/BlackJackEngine</url>
         </repository>
     </distributionManagement>
 
