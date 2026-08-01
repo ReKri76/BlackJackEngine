@@ -4,11 +4,12 @@ All game interactions are performed through the `API` class. Each player action 
 
 ### Response Object
 ```java
-public record Response(State state, boolean insuranceIsOffered, Double win) {}
+public record Response(State state, boolean insuranceIsOffered, Double win, Integer deckSize) {}
 ```
 - `state`: Current state of the game (contains player and dealer hands, and game status).
 - `insuranceIsOffered`: `true` if the dealer's visible card is an Ace.
 - `win`: The profit or loss amount if the game is over. Returns `null` if the round is still ongoing.
+- `deckSize`: The number of cards remaining in the deck. 
 
 ### Core Actions
 

@@ -18,7 +18,8 @@ public class API {
     public record Response(
             State state,
             boolean insuranceIsOffered,
-            Double win
+            Double win,
+            Integer deckSize
     ) {}
 
     public API() {
@@ -42,15 +43,15 @@ public class API {
 
         if (currentState.status().equals(Status.PLAYER_BLACKJACK)) {
             isGameOver = true;
-            return new Response(currentState, false, currentBet * 1.5);
+            return new Response(currentState, false, currentBet * 1.5, engine.getSizeOfDeck());
         }
 
         if (currentState.dealer().getFirst().value().equals(Value.ACE)) {
             insuranceIsOffered = true;
-            return new Response(currentState, true, null);
+            return new Response(currentState, true, null, engine.getSizeOfDeck());
         }
 
-        return new Response(currentState, false, null);
+        return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
     public Response hit() {
@@ -61,10 +62,10 @@ public class API {
 
         if (currentState.status().equals(Status.PLAYER_IS_TOO_MUCH)) {
             isGameOver = true;
-            return new Response(currentState, false, -currentBet - insuranceBet);
+            return new Response(currentState, false, -currentBet - insuranceBet, engine.getSizeOfDeck());
         }
 
-        return new Response(currentState, false, null);
+        return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
     public Response stand() {
@@ -90,7 +91,7 @@ public class API {
             mainBetProfit = currentBet;
 
 
-        return new Response(currentState, false, mainBetProfit + insuranceProfit);
+        return new Response(currentState, false, mainBetProfit + insuranceProfit, engine.getSizeOfDeck());
     }
 
     public Response doubleBet() {
@@ -102,7 +103,7 @@ public class API {
 
         if (currentState.status().equals(Status.PLAYER_IS_TOO_MUCH)) {
             isGameOver = true;
-            return new Response(currentState, false, -currentBet - insuranceBet);
+            return new Response(currentState, false, -currentBet - insuranceBet, engine.getSizeOfDeck());
         }
 
         return this.stand();
@@ -116,7 +117,7 @@ public class API {
 
         isGameOver = true;
         insuranceIsOffered = false;
-        return new Response(currentState, false, -currentBet / 2.0);
+        return new Response(currentState, false, -currentBet / 2.0, engine.getSizeOfDeck());
     }
 
     public API split(){
@@ -142,7 +143,7 @@ public class API {
         insuranceIsOffered = false;
         insuranceBet = currentBet / 2.0;
 
-        return new Response(currentState, false, null);
+        return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
     private void checkNotGameOver() {
