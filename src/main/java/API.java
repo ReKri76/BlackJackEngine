@@ -3,6 +3,8 @@ import api.Status;
 import api.Engine.State;
 import card.Card;
 import card.Value;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,10 +18,10 @@ public class API {
     private boolean isGameOver = false;
 
     public record Response(
-            State state,
-            boolean insuranceIsOffered,
-            Double win,
-            Integer deckSize
+            @NotNull State state,
+            @NotNull Boolean insuranceIsOffered,
+            @Nullable Double win,
+            @NotNull Integer deckSize
     ) {}
 
     public API() {
@@ -30,6 +32,7 @@ public class API {
         this.engine = engine;
     }
 
+    @NotNull
     public Response newGame(double bet) {
         if (bet <= 0)
             throw new IllegalArgumentException("Bet must be positive");
@@ -54,6 +57,7 @@ public class API {
         return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
+    @NotNull
     public Response hit() {
         checkNotGameOver();
         insuranceIsOffered = false;
@@ -68,6 +72,7 @@ public class API {
         return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
+    @NotNull
     public Response stand() {
         checkNotGameOver();
         insuranceIsOffered = false;
@@ -94,6 +99,7 @@ public class API {
         return new Response(currentState, false, mainBetProfit + insuranceProfit, engine.getSizeOfDeck());
     }
 
+    @NotNull
     public Response doubleBet() {
         checkNotGameOver();
         insuranceIsOffered = false;
@@ -109,6 +115,7 @@ public class API {
         return this.stand();
     }
 
+    @NotNull
     public Response surrender() {
         checkNotGameOver();
 
@@ -120,6 +127,7 @@ public class API {
         return new Response(currentState, false, -currentBet / 2.0, engine.getSizeOfDeck());
     }
 
+    @NotNull
     public API split(){
         checkNotGameOver();
 

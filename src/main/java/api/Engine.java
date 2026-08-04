@@ -3,6 +3,7 @@ package api;
 import card.Card;
 import card.Value;
 import deck.Deck;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,9 @@ public class Engine {
     private final List<Card> currentHand = new ArrayList<>();
 
     public record State(
-            List<Card> dealer,
-            List<Card> player,
-            Status status
+            @NotNull List<Card> dealer,
+            @NotNull List<Card> player,
+            @NotNull Status status
     ){}
 
     public State shuffle() {
