@@ -49,7 +49,7 @@ public class API {
             return new Response(currentState, false, currentBet * 1.5, engine.getSizeOfDeck());
         }
 
-        if (currentState.dealer().getFirst().value().equals(Value.ACE)) {
+        if (currentState.dealer().get(0).value().equals(Value.ACE)) {
             insuranceIsOffered = true;
             return new Response(currentState, true, null, engine.getSizeOfDeck());
         }

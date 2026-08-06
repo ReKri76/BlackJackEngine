@@ -53,15 +53,15 @@ public class Engine {
     }
 
     public boolean isSplitAvailable(){
-        return isSurrenderAvailable() && currentHand.getFirst().value() == currentHand.get(1).value();
+        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value();
     }
 
     public Engine split(){
         Engine res = new Engine();
         res.deck = this.deck;
-        final var currentFirst = currentHand.getFirst();
+        final var currentFirst = currentHand.get(0);
         res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value()));
-        currentHand.removeFirst();
+        currentHand.remove(0);
         res.dealerHand = this.dealerHand;
         return res;
     }
