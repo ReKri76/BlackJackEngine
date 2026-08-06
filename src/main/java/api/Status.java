@@ -9,5 +9,6 @@ public enum Status {
     PLAYER_IS_TOO_MUCH,
     DEALER_IS_TOO_MUCH,
     ERROR,
-    STOP
+    STOP,
+    START
 }
