@@ -124,7 +124,8 @@ public class API {
 
         isGameOver = true;
         insuranceIsOffered = false;
-        return new Response(currentState, false, -currentBet / 2.0, engine.getSizeOfDeck());
+        var resState = new State(currentState.dealer(), currentState.player(), Status.LOSE);
+        return new Response(resState, false, -currentBet / 2.0, engine.getSizeOfDeck());
     }
 
     @NotNull
