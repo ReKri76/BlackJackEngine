@@ -10,5 +10,5 @@ public enum Status {
     DEALER_IS_TOO_MUCH,
     ERROR,
     STOP,
-    START
+    WAITING
 }
