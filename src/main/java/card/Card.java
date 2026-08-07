@@ -2,7 +2,6 @@ package card;
 
 public record Card (
     Suit suit,
-    Value value
-    )
-{}
-
+    Value value,
+    String uuid
+) {}

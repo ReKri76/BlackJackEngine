@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Engine {
     private Deck deck;
@@ -60,7 +61,7 @@ public class Engine {
         Engine res = new Engine();
         res.deck = this.deck;
         final var currentFirst = currentHand.get(0);
-        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value()));
+        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), UUID.randomUUID().toString()));
         currentHand.remove(0);
         res.dealerHand = this.dealerHand;
         return res;
