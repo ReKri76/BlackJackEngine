@@ -167,7 +167,8 @@ public class API {
     }
 
     public Response getCurrentResponse(){
-        return new Response(currentState, insuranceIsOffered, null, engine.getSizeOfDeck());
+        State state = new State(currentState.dealer(), engine.getCurrentHand(), currentState.status());
+        return new Response(state, insuranceIsOffered, null, engine.getSizeOfDeck());
     }
 
     private void checkNotGameOver() {

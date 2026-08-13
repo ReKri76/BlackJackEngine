@@ -26,6 +26,8 @@ public class Engine {
         return turn();
     }
 
+    public List<Card> getCurrentHand(){return currentHand;}
+
     public State turn() {
         currentHand.clear();
         dealerHand.clear();
