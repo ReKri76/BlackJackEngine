@@ -149,6 +149,7 @@ public class API {
         var newAPI = new API(newEngine);
         newAPI.insuranceBet = this.insuranceBet;
         newAPI.currentBet = this.currentBet;
+        newAPI.currentState=this.currentState;
 
         return newAPI;
     }
