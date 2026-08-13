@@ -61,7 +61,7 @@ public class Engine {
         Engine res = new Engine();
         res.deck = this.deck;
         final var currentFirst = currentHand.get(0);
-        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), UUID.randomUUID().toString()));
+        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), currentFirst.uuid()));
         currentHand.remove(0);
         res.dealerHand = this.dealerHand;
         return res;

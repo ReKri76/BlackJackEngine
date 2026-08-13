@@ -155,6 +155,10 @@ public class API {
         return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
+    public Response getCurrentResponse(){
+        return new Response(currentState, insuranceIsOffered, null, engine.getSizeOfDeck());
+    }
+
     private void checkNotGameOver() {
         if (isGameOver)
             throw new IllegalStateException("Game is already over");
