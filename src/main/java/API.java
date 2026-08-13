@@ -33,7 +33,7 @@ public class API {
         this.engine = engine;
     }
 
-    public API(API api){
+    public API(@NotNull API api){
         this.currentBet=api.currentBet;
         this.currentState=api.currentState;
         this.engine=api.engine;
