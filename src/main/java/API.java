@@ -3,6 +3,7 @@ import api.Status;
 import api.Engine.State;
 import card.Card;
 import card.Value;
+import deck.Deck;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ public class API {
     State currentState;
     private double currentBet;
     private double insuranceBet = 0.0;
-    private static final int MIN_SIZE_OF_DECK = 52 * 2;
+    private static final int MIN_SIZE_OF_DECK = 52 * Deck.NUMBER_OF_DECKS/3;
     private boolean insuranceIsOffered = false;
     private boolean isGameOver = false;
 
@@ -30,6 +31,15 @@ public class API {
 
     API(Engine engine){
         this.engine = engine;
+    }
+
+    public API(API api){
+        this.currentBet=api.currentBet;
+        this.currentState=api.currentState;
+        this.engine=api.engine;
+        this.isGameOver=api.isGameOver;
+        this.insuranceBet= api.insuranceBet;
+        this.insuranceIsOffered= api.insuranceIsOffered;
     }
 
     @NotNull
