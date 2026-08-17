@@ -9,11 +9,12 @@ import java.util.Collections;
 import java.util.UUID;
 
 public class Deck {
-    public static final int NUMBER_OF_DECKS = 8;
-    final private ArrayList<Card> cards = new ArrayList<>(52*NUMBER_OF_DECKS);
+    final private ArrayList<Card> cards;
 
-    public Deck(){
-        for (int i = 1; i<=NUMBER_OF_DECKS; i++)
+    public Deck(int numberOfDecks){
+        cards = new ArrayList<>(52* numberOfDecks);
+
+        for (int i = 1; i<= numberOfDecks; i++)
             for (var value : Value.values())
                 for (var suit : Suit.values())
                     cards.add(new Card(suit, value, UUID.randomUUID().toString()));

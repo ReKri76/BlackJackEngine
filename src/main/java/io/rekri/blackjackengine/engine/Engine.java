@@ -11,9 +11,9 @@ import java.util.List;
 public class Engine {
     private Deck deck;
 
-    private List<Card> dealerHand = new ArrayList<>();
-    private final List<Card> currentHand = new ArrayList<>();
-    private final Config config;
+    @NotNull private List<Card> dealerHand = new ArrayList<>();
+    @NotNull private final List<Card> currentHand = new ArrayList<>();
+    @NotNull private final Config config;
 
     public record State(
             @NotNull List<Card> dealer,
@@ -21,13 +21,20 @@ public class Engine {
             @NotNull Status status
     ){}
 
+    public Engine(@NotNull Config config){
+        this.config=config;
+    }
+
+    @NotNull
     public State shuffle() {
-        this.deck = new Deck();
+        this.deck = new Deck(config.countOfDecks());
         return turn();
     }
 
+    @NotNull
     public List<Card> getCurrentHand(){return currentHand;}
 
+    @NotNull
     public State turn() {
         currentHand.clear();
         dealerHand.clear();
@@ -40,12 +47,14 @@ public class Engine {
         return status(false);
     }
 
+    @NotNull
     public State end() {
         while (count(dealerHand) <= 16)
             dealerHand.add(deck.draw());
         return status(true);
     }
 
+    @NotNull
     public State draw() {
         currentHand.add(deck.draw());
         return status(false);
@@ -59,8 +68,9 @@ public class Engine {
         return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value();
     }
 
+    @NotNull
     public Engine split(){
-        Engine res = new Engine();
+        Engine res = new Engine(this.config);
         res.deck = this.deck;
         final var currentFirst = currentHand.get(0);
         res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), currentFirst.uuid()));
@@ -73,6 +83,7 @@ public class Engine {
         return deck != null ? deck.getSize() : 0;
     }
 
+    @NotNull
     private State status(boolean isOver) {
         Status status;
 
