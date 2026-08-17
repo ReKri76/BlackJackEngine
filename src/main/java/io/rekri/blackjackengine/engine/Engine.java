@@ -1,19 +1,19 @@
-package api;
+package io.rekri.blackjackengine.engine;
 
-import card.Card;
-import card.Value;
-import deck.Deck;
+import io.rekri.blackjackengine.card.Card;
+import io.rekri.blackjackengine.card.Value;
+import io.rekri.blackjackengine.engine.config.Config;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Engine {
     private Deck deck;
 
     private List<Card> dealerHand = new ArrayList<>();
     private final List<Card> currentHand = new ArrayList<>();
+    private final Config config;
 
     public record State(
             @NotNull List<Card> dealer,

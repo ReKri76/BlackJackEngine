@@ -1,8 +1,8 @@
-package deck;
+package io.rekri.blackjackengine.engine;
 
-import card.Card;
-import card.Suit;
-import card.Value;
+import io.rekri.blackjackengine.card.Card;
+import io.rekri.blackjackengine.card.Suit;
+import io.rekri.blackjackengine.card.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;

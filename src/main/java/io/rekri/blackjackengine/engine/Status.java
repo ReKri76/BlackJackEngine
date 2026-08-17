@@ -1,4 +1,4 @@
-package api;
+package io.rekri.blackjackengine.engine;
 
 public enum Status {
     WIN,

@@ -1,9 +1,12 @@
-import api.Engine;
-import api.Status;
-import api.Engine.State;
-import card.Card;
-import card.Value;
-import deck.Deck;
+package io.rekri.blackjackengine;
+
+import io.rekri.blackjackengine.engine.Deck;
+import io.rekri.blackjackengine.engine.Engine;
+import io.rekri.blackjackengine.engine.Status;
+import io.rekri.blackjackengine.engine.Engine.State;
+import io.rekri.blackjackengine.card.Card;
+import io.rekri.blackjackengine.card.Value;
+import io.rekri.blackjackengine.engine.config.Config;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +20,7 @@ public class API {
     private static final int MIN_SIZE_OF_DECK = 52 * Deck.NUMBER_OF_DECKS/3;
     private boolean insuranceIsOffered = false;
     private boolean isGameOver = false;
+    private final Config config;
 
     public record Response(
             @NotNull State state,
