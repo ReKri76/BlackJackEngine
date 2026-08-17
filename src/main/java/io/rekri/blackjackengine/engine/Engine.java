@@ -3,6 +3,7 @@ package io.rekri.blackjackengine.engine;
 import io.rekri.blackjackengine.card.Card;
 import io.rekri.blackjackengine.card.Value;
 import io.rekri.blackjackengine.engine.config.Config;
+import io.rekri.blackjackengine.engine.config.DealerStand;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class Engine {
 
     @NotNull
     public State end() {
-        while (count(dealerHand) <= 16)
+        while (config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) <= 16 : hardCount(dealerHand) <= 16)
             dealerHand.add(deck.draw());
         return status(true);
     }
@@ -87,8 +88,8 @@ public class Engine {
     private State status(boolean isOver) {
         Status status;
 
-        int dealerPoints = count(dealerHand);
-        int playerPoints = count(currentHand);
+        int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
+        int playerPoints = softCount(currentHand);
 
         if (playerPoints > 21)
             status = Status.PLAYER_IS_TOO_MUCH;
@@ -109,7 +110,7 @@ public class Engine {
         return new State(List.copyOf(dealerHand), List.copyOf(currentHand), status);
     }
 
-    private int count(List<Card> hand) {
+    private int softCount(List<Card> hand) {
         int count = 0;
         int aces = 0;
 
@@ -123,6 +124,15 @@ public class Engine {
             count -= 10;
             aces--;
         }
+
+        return count;
+    }
+
+    private int hardCount(List<Card> hand){
+        int count = 0;
+
+        for (Card card : hand)
+            count += card.value().getValue();
 
         return count;
     }
