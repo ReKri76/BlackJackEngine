@@ -63,6 +63,7 @@ public class API {
         this.insuranceIsOffered= api.insuranceIsOffered;
         this.config=api.config;
         this.minSizeOfDeck=api.minSizeOfDeck;
+        this.isSplitWasIngThisRound=api.isSplitWasIngThisRound;
     }
 
     @NotNull
