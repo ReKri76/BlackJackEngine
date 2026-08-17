@@ -20,6 +20,7 @@ public class API {
     private boolean insuranceIsOffered = false;
     private boolean isGameOver = false;
     private final Config config;
+    private boolean isSplitWasIngThisRound = false;
 
     public record Response(
             @NotNull State state,
@@ -73,6 +74,7 @@ public class API {
         this.insuranceBet = 0.0;
         this.isGameOver = false;
         this.insuranceIsOffered = false;
+        this.isSplitWasIngThisRound = false;
 
         currentState = engine.getSizeOfDeck() < minSizeOfDeck ? engine.shuffle() : engine.turn();
 
@@ -109,7 +111,6 @@ public class API {
     @NotNull
     public Response stand() {
         checkNotGameOver();
-        insuranceIsOffered = false;
         isGameOver = true;
 
         currentState = engine.end();
@@ -129,14 +130,14 @@ public class API {
         else
             mainBetProfit = currentBet;
 
-
         return new Response(currentState, false, mainBetProfit + insuranceProfit, engine.getSizeOfDeck());
     }
 
     @NotNull
     public Response doubleBet() {
         checkNotGameOver();
-        insuranceIsOffered = false;
+        if (isSplitWasIngThisRound && !config.isDaS())
+            throw new IllegalStateException("By current rules double after split is not available.");
 
         currentBet *= 2;
         currentState = engine.draw();
@@ -157,7 +158,6 @@ public class API {
             throw new IllegalStateException("Surrender is only available on the initial hand.");
 
         isGameOver = true;
-        insuranceIsOffered = false;
         var resState = new State(currentState.dealer(), currentState.player(), Status.LOSE);
         return new Response(resState, false, -currentBet / 2.0, engine.getSizeOfDeck());
     }
@@ -169,11 +169,14 @@ public class API {
         if (!engine.isSplitAvailable())
             throw new IllegalStateException("Split is only available on the initial hand.");
 
+        isSplitWasIngThisRound = true;
+
         var newEngine = engine.split();
         var newAPI = new API(newEngine, this.config);
         newAPI.insuranceBet = this.insuranceBet;
         newAPI.currentBet = this.currentBet;
         newAPI.currentState=this.currentState;
+        newAPI.isSplitWasIngThisRound=this.isSplitWasIngThisRound;
 
         return newAPI;
     }
