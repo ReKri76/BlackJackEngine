@@ -4,6 +4,7 @@ import io.rekri.blackjackengine.card.Card;
 import io.rekri.blackjackengine.card.Value;
 import io.rekri.blackjackengine.engine.config.Config;
 import io.rekri.blackjackengine.engine.config.DealerStand;
+import io.rekri.blackjackengine.engine.config.SplitRules;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,7 +67,18 @@ public class Engine {
     }
 
     public boolean isSplitAvailable(){
-        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value();
+        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value() && (
+                        config.splitRules() == SplitRules.ANY ||
+
+                        config.splitRules() == SplitRules.NINE_TEN_ELEVEN && (
+                                currentHand.getFirst().value().getValue()==9 ||
+                                currentHand.getFirst().value().getValue()== 10 || currentHand.getFirst().value().getValue()==11
+                        ) ||
+
+                        config.splitRules() == SplitRules.TEN_ELEVEN &&(
+                                currentHand.getFirst().value().getValue()== 10 || currentHand.getFirst().value().getValue()==11
+                                )
+                        );
     }
 
     @NotNull
