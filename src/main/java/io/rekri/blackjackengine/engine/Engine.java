@@ -4,7 +4,7 @@ import io.rekri.blackjackengine.card.Card;
 import io.rekri.blackjackengine.card.Value;
 import io.rekri.blackjackengine.engine.config.Config;
 import io.rekri.blackjackengine.engine.config.DealerStand;
-import io.rekri.blackjackengine.engine.config.SplitRules;
+import io.rekri.blackjackengine.engine.config.DoubleRules;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -67,18 +67,19 @@ public class Engine {
     }
 
     public boolean isSplitAvailable(){
-        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value() && (
-                        config.splitRules() == SplitRules.ANY ||
+        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value();
+    }
 
-                        config.splitRules() == SplitRules.NINE_TEN_ELEVEN && (
-                                currentHand.getFirst().value().getValue()==9 ||
-                                currentHand.getFirst().value().getValue()== 10 || currentHand.getFirst().value().getValue()==11
-                        ) ||
+    public boolean isDoubleAvailable(){
+        if (config.doubleRules()== DoubleRules.ANY)
+            return true;
 
-                        config.splitRules() == SplitRules.TEN_ELEVEN &&(
-                                currentHand.getFirst().value().getValue()== 10 || currentHand.getFirst().value().getValue()==11
-                                )
-                        );
+        final var firstCard = currentHand.get(0);
+        final var secondCard = currentHand.get(1);
+        final var sum = firstCard.value().getValue() + secondCard.value().getValue();
+
+        return config.doubleRules() == DoubleRules.TEN_ELEVEN && (sum == 10 || sum == 11) ||
+                config.doubleRules() == DoubleRules.NINE_TEN_ELEVEN && (sum == 10 || sum == 11 || sum ==9);
     }
 
     @NotNull

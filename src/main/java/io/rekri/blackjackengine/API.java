@@ -41,7 +41,7 @@ public class API {
                 Surrender.EARLY_SURRENDER,
                 true,
                 HideCard.EUROPEAN,
-                SplitRules.ANY,
+                DoubleRules.ANY,
                 BlackJackRules.THREE_TO_TWO
         );
         engine = new Engine(this.config);
@@ -139,6 +139,8 @@ public class API {
         checkNotGameOver();
         if (isSplitWasIngThisRound && !config.isDaS())
             throw new IllegalStateException("By current rules double after split is not available.");
+        if (!engine.isDoubleAvailable())
+            throw new IllegalStateException("By current rules double is not available");
 
         currentBet *= 2;
         currentState = engine.draw();

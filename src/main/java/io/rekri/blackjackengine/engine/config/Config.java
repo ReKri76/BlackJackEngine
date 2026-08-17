@@ -8,7 +8,7 @@ public record Config (
         @NotNull Surrender surrender,
         @NotNull Boolean isDaS,
         @NotNull HideCard hideCardRules,
-        @NotNull SplitRules splitRules,
+        @NotNull DoubleRules doubleRules,
         @NotNull BlackJackRules blackJackRules
         )
 {}
