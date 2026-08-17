@@ -106,8 +106,12 @@ public class Engine {
 
         if (playerPoints > 21)
             status = Status.PLAYER_IS_TOO_MUCH;
+        else if (playerPoints == 21 && currentHand.size() == 2 && dealerPoints == 21 && dealerHand.size()==2)
+            status = Status.PUSH;
         else if (playerPoints == 21 && currentHand.size() == 2)
             status = Status.PLAYER_BLACKJACK;
+        else if (dealerPoints == 21 && currentHand.size() == 2)
+            status = Status.DEALER_BLACKJACK;
         else if (dealerPoints > 21)
             status = Status.DEALER_IS_TOO_MUCH;
         else if (isOver)

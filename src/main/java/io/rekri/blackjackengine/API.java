@@ -36,7 +36,8 @@ public class API {
     }
 
     public API() {
-        this.config= new Config(8,
+        this.config= new Config(
+                8,
                 DealerStand.SOFT_17,
                 Surrender.EARLY_SURRENDER,
                 true,
