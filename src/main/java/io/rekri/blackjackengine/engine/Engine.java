@@ -62,6 +62,12 @@ public class Engine {
 
     @NotNull
     public State draw() {
+        currentHand.add(deck.draw());
+        return status(false);
+    }
+
+    @NotNull
+    public State dealerDraw() {
         if (dealerHand.get(0).value().getValue() != 11 && dealerHand.get(0).value().getValue() != 10)
             return status(false);
 
@@ -69,12 +75,6 @@ public class Engine {
             currentHand.add(deck.draw());
         else
             dealerHand.add(hideCard);
-        return status(false);
-    }
-
-    @NotNull
-    public State dealerDraw() {
-        dealerHand.add(deck.draw());
         return status(false);
     }
 
