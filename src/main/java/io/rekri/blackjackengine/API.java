@@ -159,11 +159,22 @@ public class API {
         checkNotGameOver();
 
         if (!engine.isSurrenderAvailable())
-            throw new IllegalStateException("Surrender is only available on the initial hand.");
+            throw new IllegalStateException("Surrender is not available.");
 
         isGameOver = true;
+
+        var win = -currentBet / 2.0;
+
+        if (config.hideCardRules() == HideCard.EUROPEAN && config.surrender() == Surrender.LATE_SURRENDER){
+            var res = engine.dealerDraw();
+
+            if (res.status() == Status.DEALER_BLACKJACK)
+                win = - currentBet;
+        }
+
         var resState = new State(currentState.dealer(), currentState.player(), Status.LOSE);
-        return new Response(resState, false, -currentBet / 2.0, engine.getSizeOfDeck());
+
+        return new Response(resState, false, win, engine.getSizeOfDeck());
     }
 
     @NotNull

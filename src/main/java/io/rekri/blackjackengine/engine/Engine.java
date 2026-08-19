@@ -2,10 +2,9 @@ package io.rekri.blackjackengine.engine;
 
 import io.rekri.blackjackengine.card.Card;
 import io.rekri.blackjackengine.card.Value;
-import io.rekri.blackjackengine.engine.config.Config;
-import io.rekri.blackjackengine.engine.config.DealerStand;
-import io.rekri.blackjackengine.engine.config.DoubleRules;
+import io.rekri.blackjackengine.engine.config.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +12,9 @@ import java.util.List;
 public class Engine {
     private Deck deck;
 
-    @NotNull private List<Card> dealerHand = new ArrayList<>();
-    @NotNull private final List<Card> currentHand = new ArrayList<>();
+    @NotNull private List<@NotNull Card> dealerHand = new ArrayList<>();
+    @Nullable private Card hideCard;
+    @NotNull private final List<@NotNull Card> currentHand = new ArrayList<>();
     @NotNull private final Config config;
 
     public record State(
@@ -45,12 +45,16 @@ public class Engine {
         currentHand.add(deck.draw());
 
         dealerHand.add(deck.draw());
+        hideCard = config.hideCardRules() == HideCard.AMERICAN ? deck.draw() : null;
 
         return status(false);
     }
 
     @NotNull
     public State end() {
+        if (hideCard!=null)
+            dealerHand.add(hideCard);
+
         while (config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) <= 16 : hardCount(dealerHand) <= 16)
             dealerHand.add(deck.draw());
         return status(true);
@@ -62,12 +66,21 @@ public class Engine {
         return status(false);
     }
 
+    @NotNull
+    public State dealerDraw() {
+        dealerHand.add(deck.draw());
+        return status(false);
+    }
+
     public boolean isSurrenderAvailable() {
+        if (config.surrender() == Surrender.NO_SURRENDER)
+            return false;
+
         return currentHand.size() == 2;
     }
 
     public boolean isSplitAvailable(){
-        return isSurrenderAvailable() && currentHand.get(0).value() == currentHand.get(1).value();
+        return currentHand.size() == 2 && currentHand.get(0).value() == currentHand.get(1).value();
     }
 
     public boolean isDoubleAvailable(){
@@ -90,6 +103,7 @@ public class Engine {
         res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), currentFirst.uuid()));
         currentHand.remove(0);
         res.dealerHand = this.dealerHand;
+        res.hideCard = this.hideCard;
         return res;
     }
 
@@ -100,6 +114,9 @@ public class Engine {
     @NotNull
     private State status(boolean isOver) {
         Status status;
+
+        if (hideCard != null)
+            dealerHand.add(hideCard);
 
         int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
         int playerPoints = softCount(currentHand);
@@ -123,6 +140,9 @@ public class Engine {
                 status = Status.PUSH;
         else
             status = Status.CONTINUE;
+
+        if (hideCard != null && status != Status.DEALER_BLACKJACK)
+            dealerHand.remove(hideCard);
 
         return new State(List.copyOf(dealerHand), List.copyOf(currentHand), status);
     }
