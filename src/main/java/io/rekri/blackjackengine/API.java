@@ -196,6 +196,11 @@ public class API {
         return newAPI;
     }
 
+    @NotNull
+    public Boolean isDoubleAvailable(){
+        return engine.isDoubleAvailable();
+    }
+
     public Response makeInsurance() {
         checkNotGameOver();
 
