@@ -3,13 +3,11 @@ package io.rekri.blackjackengine;
 import io.rekri.blackjackengine.engine.Engine;
 import io.rekri.blackjackengine.engine.Status;
 import io.rekri.blackjackengine.engine.Engine.State;
-import io.rekri.blackjackengine.card.Card;
 import io.rekri.blackjackengine.card.Value;
 import io.rekri.blackjackengine.engine.config.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 
 public class API {
     private final Engine engine;
@@ -92,6 +90,12 @@ public class API {
             return new Response(currentState, true, null, engine.getSizeOfDeck());
         }
 
+        if (engine.isDealerBlackJack()){
+            currentState = engine.dealerDraw();
+            isGameOver = true;
+            return new Response(currentState, false, -currentBet - insuranceBet, engine.getSizeOfDeck());
+        }
+
         return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
@@ -102,7 +106,7 @@ public class API {
 
         currentState = engine.draw();
 
-        if (currentState.status().equals(Status.PLAYER_IS_TOO_MUCH)) {
+        if (currentState.status()==Status.PLAYER_IS_TOO_MUCH) {
             isGameOver = true;
             return new Response(currentState, false, -currentBet - insuranceBet, engine.getSizeOfDeck());
         }
@@ -117,10 +121,8 @@ public class API {
 
         currentState = engine.end();
 
-        boolean dealerHasBlackjack = isDealerBlackjack(currentState);
         double insuranceProfit = insuranceBet > 0
-                ? (dealerHasBlackjack ? insuranceBet * 2.0 : -insuranceBet)
-                : 0.0;
+                ? (currentState.status()==Status.DEALER_BLACKJACK ? insuranceBet * 2.0 : -insuranceBet) : 0.0;
 
         Status status = currentState.status();
         double mainBetProfit;
@@ -210,6 +212,14 @@ public class API {
         insuranceIsOffered = false;
         insuranceBet = currentBet / 2.0;
 
+        if (engine.isDealerBlackJack()){
+            double insuranceProfit = insuranceBet > 0
+                    ? (currentState.status()==Status.DEALER_BLACKJACK ? insuranceBet * 2.0 : -insuranceBet) : 0.0;
+            currentState = engine.dealerDraw();
+            isGameOver = true;
+            return new Response(currentState, false, -currentBet + insuranceProfit, engine.getSizeOfDeck());
+        }
+
         return new Response(currentState, false, null, engine.getSizeOfDeck());
     }
 
@@ -221,23 +231,5 @@ public class API {
     private void checkNotGameOver() {
         if (isGameOver)
             throw new IllegalStateException("Game is already over");
-    }
-
-    private boolean isDealerBlackjack(State state) {
-        List<Card> dealerHand = state.dealer();
-        if (dealerHand.size() != 2) return false;
-
-        int count = 0;
-        int aces = 0;
-        for (Card card : dealerHand) {
-            count += card.value().getValue();
-            if (card.value() == Value.ACE)
-                aces++;
-        }
-        while (count > 21 && aces > 0) {
-            count -= 10;
-            aces--;
-        }
-        return count == 21;
     }
 }

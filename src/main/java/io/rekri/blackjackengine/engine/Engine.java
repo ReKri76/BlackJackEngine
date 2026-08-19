@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Engine {
     private Deck deck;
@@ -63,7 +62,6 @@ public class Engine {
     @NotNull
     public State draw() {
         currentHand.add(deck.draw());
-        dealerDraw();
         return status(false);
     }
 
@@ -88,7 +86,16 @@ public class Engine {
     }
 
     public boolean isSplitAvailable(){
-        return currentHand.size() == 2 && currentHand.get(0).value() == currentHand.get(1).value();
+        return currentHand.size() == 2 && currentHand.get(0).value() == currentHand.get(1).value() &&
+                dealerDraw().status!=Status.DEALER_BLACKJACK;
+    }
+
+    public boolean isDealerBlackJack(){
+        if (config.hideCardRules()==HideCard.AMERICAN)
+            dealerHand.add(hideCard);
+        var res = status(false);
+        dealerHand.remove(hideCard);
+        return res.status==Status.DEALER_BLACKJACK;
     }
 
     public boolean isDoubleAvailable(){
