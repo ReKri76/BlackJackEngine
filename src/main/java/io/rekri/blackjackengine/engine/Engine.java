@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Engine {
     private Deck deck;
@@ -24,7 +25,7 @@ public class Engine {
     ){}
 
     public Engine(@NotNull Config config){
-        this.config=config;
+        this.config = config;
     }
 
     @NotNull
@@ -34,7 +35,7 @@ public class Engine {
     }
 
     @NotNull
-    public List<Card> getCurrentHand(){return currentHand;}
+    public List<Card> getCurrentHand(){ return currentHand; }
 
     @NotNull
     public State turn() {
@@ -52,8 +53,7 @@ public class Engine {
 
     @NotNull
     public State end() {
-        if (hideCard!=null)
-            dealerHand.add(hideCard);
+        revealHideCard();
 
         while (config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) <= 16 : hardCount(dealerHand) <= 16)
             dealerHand.add(deck.draw());
@@ -71,10 +71,10 @@ public class Engine {
         if (dealerHand.get(0).value().getValue() != 11 && dealerHand.get(0).value().getValue() != 10)
             return status(false);
 
-        else if (hideCard==null)
+        else if (hideCard == null)
             currentHand.add(deck.draw());
         else
-            dealerHand.add(hideCard);
+            revealHideCard();
         return status(false);
     }
 
@@ -90,10 +90,10 @@ public class Engine {
     }
 
     public boolean isDoubleAvailable(){
-        if (config.doubleRules()== DoubleRules.ANY)
+        if (config.doubleRules() == DoubleRules.ANY)
             return true;
 
-        if (currentHand.size()<2)
+        if (currentHand.size() < 2)
             return false;
 
         final var firstCard = currentHand.get(0);
@@ -101,7 +101,7 @@ public class Engine {
         final var sum = firstCard.value().getValue() + secondCard.value().getValue();
 
         return config.doubleRules() == DoubleRules.TEN_ELEVEN && (sum == 10 || sum == 11) ||
-                config.doubleRules() == DoubleRules.NINE_TEN_ELEVEN && (sum == 10 || sum == 11 || sum ==9);
+                config.doubleRules() == DoubleRules.NINE_TEN_ELEVEN && (sum == 10 || sum == 11 || sum == 9);
     }
 
     @NotNull
@@ -109,7 +109,7 @@ public class Engine {
         Engine res = new Engine(this.config);
         res.deck = this.deck;
         final var currentFirst = currentHand.get(0);
-        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), currentFirst.uuid()));
+        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), UUID.randomUUID().toString()));
         currentHand.remove(0);
         res.dealerHand = this.dealerHand;
         res.hideCard = this.hideCard;
@@ -120,19 +120,23 @@ public class Engine {
         return deck != null ? deck.getSize() : 0;
     }
 
+    private void revealHideCard() {
+        if (hideCard != null) {
+            dealerHand.add(new Card(hideCard.suit(), hideCard.value(), UUID.randomUUID().toString()));
+            hideCard = null;
+        }
+    }
+
     @NotNull
     private State status(boolean isOver) {
         Status status;
-
-        if (hideCard != null && isOver)
-            dealerHand.add(hideCard);
 
         int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
         int playerPoints = softCount(currentHand);
 
         if (playerPoints > 21)
             status = Status.PLAYER_IS_TOO_MUCH;
-        else if (playerPoints == 21 && currentHand.size() == 2 && dealerPoints == 21 && dealerHand.size()==2)
+        else if (playerPoints == 21 && currentHand.size() == 2 && dealerPoints == 21 && dealerHand.size() == 2)
             status = Status.PUSH;
         else if (playerPoints == 21 && currentHand.size() == 2)
             status = Status.PLAYER_BLACKJACK;
