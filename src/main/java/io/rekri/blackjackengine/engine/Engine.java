@@ -62,7 +62,13 @@ public class Engine {
 
     @NotNull
     public State draw() {
-        currentHand.add(deck.draw());
+        if (dealerHand.get(0).value().getValue() != 11 && dealerHand.get(0).value().getValue() != 10)
+            return status(false);
+
+        else if (hideCard==null)
+            currentHand.add(deck.draw());
+        else
+            dealerHand.add(hideCard);
         return status(false);
     }
 
@@ -86,6 +92,9 @@ public class Engine {
     public boolean isDoubleAvailable(){
         if (config.doubleRules()== DoubleRules.ANY)
             return true;
+
+        if (currentHand.size()<2)
+            return false;
 
         final var firstCard = currentHand.get(0);
         final var secondCard = currentHand.get(1);
@@ -115,7 +124,7 @@ public class Engine {
     private State status(boolean isOver) {
         Status status;
 
-        if (hideCard != null)
+        if (hideCard != null && isOver)
             dealerHand.add(hideCard);
 
         int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
@@ -140,9 +149,6 @@ public class Engine {
                 status = Status.PUSH;
         else
             status = Status.CONTINUE;
-
-        if (hideCard != null && status != Status.DEALER_BLACKJACK)
-            dealerHand.remove(hideCard);
 
         return new State(List.copyOf(dealerHand), List.copyOf(currentHand), status);
     }

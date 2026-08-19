@@ -165,7 +165,7 @@ public class API {
 
         var win = -currentBet / 2.0;
 
-        if (config.hideCardRules() == HideCard.EUROPEAN && config.surrender() == Surrender.LATE_SURRENDER){
+        if (config.surrender() == Surrender.LATE_SURRENDER){
             var res = engine.dealerDraw();
 
             if (res.status() == Status.DEALER_BLACKJACK)
