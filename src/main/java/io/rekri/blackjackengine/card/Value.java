@@ -1,4 +1,4 @@
-package card;
+package io.rekri.blackjackengine.card;
 
 public enum Value {
     ACE(11),

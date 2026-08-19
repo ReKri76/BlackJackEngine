@@ -1,9 +1,11 @@
-import api.Engine;
-import api.Status;
-import api.Engine.State;
-import card.Card;
-import card.Value;
-import deck.Deck;
+package io.rekri.blackjackengine;
+
+import io.rekri.blackjackengine.engine.Engine;
+import io.rekri.blackjackengine.engine.Status;
+import io.rekri.blackjackengine.engine.Engine.State;
+import io.rekri.blackjackengine.card.Card;
+import io.rekri.blackjackengine.card.Value;
+import io.rekri.blackjackengine.engine.config.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,9 +16,11 @@ public class API {
     State currentState;
     private double currentBet;
     private double insuranceBet = 0.0;
-    private static final int MIN_SIZE_OF_DECK = 52 * Deck.NUMBER_OF_DECKS/3;
+    private final int minSizeOfDeck;
     private boolean insuranceIsOffered = false;
     private boolean isGameOver = false;
+    private final Config config;
+    private boolean isSplitWasIngThisRound = false;
 
     public record Response(
             @NotNull State state,
@@ -25,12 +29,30 @@ public class API {
             @NotNull Integer deckSize
     ) {}
 
-    public API() {
-        engine = new Engine();
+    public API(@NotNull Config config) {
+        this.config=config;
+        engine = new Engine(this.config);
+        minSizeOfDeck = 52 * this.config.countOfDecks()/3;
     }
 
-    API(Engine engine){
+    public API() {
+        this.config= new Config(
+                8,
+                DealerStand.SOFT_17,
+                Surrender.EARLY_SURRENDER,
+                true,
+                HideCard.EUROPEAN,
+                DoubleRules.ANY,
+                BlackJackRules.THREE_TO_TWO
+        );
+        engine = new Engine(this.config);
+        minSizeOfDeck = 52 * this.config.countOfDecks()/3;
+    }
+
+    API(Engine engine, Config config) {
         this.engine = engine;
+        this.config=config;
+        minSizeOfDeck = 52 * this.config.countOfDecks()/3;
     }
 
     public API(@NotNull API api){
@@ -40,6 +62,9 @@ public class API {
         this.isGameOver=api.isGameOver;
         this.insuranceBet= api.insuranceBet;
         this.insuranceIsOffered= api.insuranceIsOffered;
+        this.config=api.config;
+        this.minSizeOfDeck=api.minSizeOfDeck;
+        this.isSplitWasIngThisRound=api.isSplitWasIngThisRound;
     }
 
     @NotNull
@@ -51,12 +76,15 @@ public class API {
         this.insuranceBet = 0.0;
         this.isGameOver = false;
         this.insuranceIsOffered = false;
+        this.isSplitWasIngThisRound = false;
 
-        currentState = engine.getSizeOfDeck() < MIN_SIZE_OF_DECK ? engine.shuffle() : engine.turn();
+        currentState = engine.getSizeOfDeck() < minSizeOfDeck ? engine.shuffle() : engine.turn();
 
         if (currentState.status().equals(Status.PLAYER_BLACKJACK)) {
             isGameOver = true;
-            return new Response(currentState, false, currentBet * 1.5, engine.getSizeOfDeck());
+            return new Response(currentState, false,
+                    currentBet * (config.blackJackRules() == BlackJackRules.THREE_TO_TWO ? 1.5 : 1.2),
+                    engine.getSizeOfDeck());
         }
 
         if (currentState.dealer().get(0).value().equals(Value.ACE)) {
@@ -85,7 +113,6 @@ public class API {
     @NotNull
     public Response stand() {
         checkNotGameOver();
-        insuranceIsOffered = false;
         isGameOver = true;
 
         currentState = engine.end();
@@ -105,14 +132,16 @@ public class API {
         else
             mainBetProfit = currentBet;
 
-
         return new Response(currentState, false, mainBetProfit + insuranceProfit, engine.getSizeOfDeck());
     }
 
     @NotNull
     public Response doubleBet() {
         checkNotGameOver();
-        insuranceIsOffered = false;
+        if (isSplitWasIngThisRound && !config.isDaS())
+            throw new IllegalStateException("By current rules double after split is not available.");
+        if (!engine.isDoubleAvailable())
+            throw new IllegalStateException("By current rules double is not available");
 
         currentBet *= 2;
         currentState = engine.draw();
@@ -130,12 +159,22 @@ public class API {
         checkNotGameOver();
 
         if (!engine.isSurrenderAvailable())
-            throw new IllegalStateException("Surrender is only available on the initial hand.");
+            throw new IllegalStateException("Surrender is not available.");
 
         isGameOver = true;
-        insuranceIsOffered = false;
+
+        var win = -currentBet / 2.0;
+
+        if (config.hideCardRules() == HideCard.EUROPEAN && config.surrender() == Surrender.LATE_SURRENDER){
+            var res = engine.dealerDraw();
+
+            if (res.status() == Status.DEALER_BLACKJACK)
+                win = - currentBet;
+        }
+
         var resState = new State(currentState.dealer(), currentState.player(), Status.LOSE);
-        return new Response(resState, false, -currentBet / 2.0, engine.getSizeOfDeck());
+
+        return new Response(resState, false, win, engine.getSizeOfDeck());
     }
 
     @NotNull
@@ -145,11 +184,14 @@ public class API {
         if (!engine.isSplitAvailable())
             throw new IllegalStateException("Split is only available on the initial hand.");
 
+        isSplitWasIngThisRound = true;
+
         var newEngine = engine.split();
-        var newAPI = new API(newEngine);
+        var newAPI = new API(newEngine, this.config);
         newAPI.insuranceBet = this.insuranceBet;
         newAPI.currentBet = this.currentBet;
         newAPI.currentState=this.currentState;
+        newAPI.isSplitWasIngThisRound=this.isSplitWasIngThisRound;
 
         return newAPI;
     }

@@ -1,19 +1,20 @@
-package deck;
+package io.rekri.blackjackengine.engine;
 
-import card.Card;
-import card.Suit;
-import card.Value;
+import io.rekri.blackjackengine.card.Card;
+import io.rekri.blackjackengine.card.Suit;
+import io.rekri.blackjackengine.card.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
 public class Deck {
-    public static final int NUMBER_OF_DECKS = 8;
-    final private ArrayList<Card> cards = new ArrayList<>(52*NUMBER_OF_DECKS);
+    final private ArrayList<Card> cards;
 
-    public Deck(){
-        for (int i = 1; i<=NUMBER_OF_DECKS; i++)
+    public Deck(int numberOfDecks){
+        cards = new ArrayList<>(52* numberOfDecks);
+
+        for (int i = 1; i<= numberOfDecks; i++)
             for (var value : Value.values())
                 for (var suit : Suit.values())
                     cards.add(new Card(suit, value, UUID.randomUUID().toString()));
