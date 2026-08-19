@@ -63,6 +63,7 @@ public class Engine {
     @NotNull
     public State draw() {
         currentHand.add(deck.draw());
+        dealerDraw();
         return status(false);
     }
 
@@ -71,10 +72,11 @@ public class Engine {
         if (dealerHand.get(0).value().getValue() != 11 && dealerHand.get(0).value().getValue() != 10)
             return status(false);
 
-        else if (hideCard == null)
+        else if (config.hideCardRules()==HideCard.EUROPEAN)
             currentHand.add(deck.draw());
-        else
+        else if (hideCard != null)
             revealHideCard();
+
         return status(false);
     }
 
@@ -109,7 +111,7 @@ public class Engine {
         Engine res = new Engine(this.config);
         res.deck = this.deck;
         final var currentFirst = currentHand.get(0);
-        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), UUID.randomUUID().toString()));
+        res.currentHand.add(new Card(currentFirst.suit(), currentFirst.value(), currentFirst.uuid()));
         currentHand.remove(0);
         res.dealerHand = this.dealerHand;
         res.hideCard = this.hideCard;
@@ -122,7 +124,7 @@ public class Engine {
 
     private void revealHideCard() {
         if (hideCard != null) {
-            dealerHand.add(new Card(hideCard.suit(), hideCard.value(), UUID.randomUUID().toString()));
+            dealerHand.add(new Card(hideCard.suit(), hideCard.value(), hideCard.uuid()));
             hideCard = null;
         }
     }
