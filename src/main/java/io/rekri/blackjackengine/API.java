@@ -189,10 +189,15 @@ public class API {
         isSplitWasIngThisRound = true;
 
         var newEngine = engine.split();
+
+        // engine.split() left this.engine's hand with only the card that stayed behind;
+        // refresh currentState so it doesn't keep reporting the pre-split 2-card hand.
+        this.currentState = new State(currentState.dealer(), engine.getCurrentHand(), currentState.status());
+
         var newAPI = new API(newEngine, this.config);
         newAPI.insuranceBet = this.insuranceBet;
         newAPI.currentBet = this.currentBet;
-        newAPI.currentState=this.currentState;
+        newAPI.currentState = new State(currentState.dealer(), newEngine.getCurrentHand(), currentState.status());
         newAPI.isSplitWasIngThisRound=this.isSplitWasIngThisRound;
 
         return newAPI;
@@ -213,11 +218,9 @@ public class API {
         insuranceBet = currentBet / 2.0;
 
         if (engine.isDealerBlackJack()){
-            double insuranceProfit = insuranceBet > 0
-                    ? (currentState.status()==Status.DEALER_BLACKJACK ? insuranceBet * 2.0 : -insuranceBet) : 0.0;
             currentState = engine.dealerDraw();
             isGameOver = true;
-            return new Response(currentState, false, -currentBet + insuranceProfit, engine.getSizeOfDeck());
+            return new Response(currentState, false, -currentBet + insuranceBet * 2.0, engine.getSizeOfDeck());
         }
 
         return new Response(currentState, false, null, engine.getSizeOfDeck());

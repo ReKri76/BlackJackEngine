@@ -72,7 +72,7 @@ public class Engine {
             return status(false);
 
         else if (config.hideCardRules()==HideCard.EUROPEAN)
-            currentHand.add(deck.draw());
+            dealerHand.add(deck.draw());
         else if (hideCard != null)
             revealHideCard();
 
@@ -88,7 +88,7 @@ public class Engine {
 
     public boolean isSplitAvailable(){
         return currentHand.size() == 2 && currentHand.get(0).value() == currentHand.get(1).value() &&
-                dealerDraw().status!=Status.DEALER_BLACKJACK;
+                !isDealerBlackJack();
     }
 
     public boolean isDealerBlackJack(){
@@ -141,8 +141,12 @@ public class Engine {
     private State status(boolean isOver) {
         Status status;
 
-        int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
         int playerPoints = softCount(currentHand);
+
+        if (playerPoints==21 && dealerHand.size()==1)
+            dealerDraw();
+
+        int dealerPoints = config.dealerStand() == DealerStand.SOFT_17 ? softCount(dealerHand) : hardCount(dealerHand);
 
         if (playerPoints > 21)
             status = Status.PLAYER_IS_TOO_MUCH;
